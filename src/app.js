@@ -1,6 +1,6 @@
 import express from "express"
 import cors from "cors"
-import gamesRouter from "./routes/games.routes.js"
+import router from "./routes/index.routes.js"
 
 // Criação do servidor
 const app = express()
@@ -8,7 +8,7 @@ const app = express()
 // Configurações
 app.use(express.json())
 app.use(cors())
-app.use(gamesRouter)
+app.use(router)
 
 // Deixa o app escutando, à espera de requisições
 const PORT = process.env.PORT || 5000
