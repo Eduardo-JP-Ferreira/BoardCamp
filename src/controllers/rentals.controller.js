@@ -53,6 +53,7 @@ export async function postRental(req, res) {
         }
 
         const rentDate = dayjs().format('YYYY-MM-DD')
+        // const rentDate = '2023-05-08'
         const returnDate = null
         const originalPrice = Number(game.rows[0].pricePerDay) * daysRented
         const delayFee = null
@@ -86,7 +87,7 @@ export async function returnRental(req, res) {
             return res.sendStatus(400)
         }
         else{            
-            const delayFee =null
+            let delayFee =null
             const rentDate = dayjs(rental.rows[0].rentDate)
             const returnDate = dayjs()
             const dateReturn = rentDate.add(rental.rows[0].daysRented, 'day');
