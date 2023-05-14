@@ -6,13 +6,12 @@ export async function getCustomers(req, res) {
         const customers = await db.query(`SELECT * FROM customers;`)
         const arr =[]
         for(let i=0;i<customers.rows.length;i++){
-            let data = dayjs(customers.rows[i].birthday).format('YYYY-MM-DD')
             const customerObject = {
                 id: customers.rows[i].id,
                 name: customers.rows[i].name,
                 phone: customers.rows[i].phone,
                 cpf: customers.rows[i].cpf,
-                birthday: data
+                birthday: dayjs(customers.rows[i].birthday).format('YYYY-MM-DD')
             }
             arr.push(customerObject)
         }
@@ -36,9 +35,8 @@ export async function postCustomers(req, res) {
             INSERT INTO customers (name, phone, cpf, birthday) 
             VALUES ($1, $2, $3, $4);`, [name,phone,cpf,birthday])
         }
-        // console.log(birthday)
-        // res.sendStatus(201)
-        res.status(201).send(birthday)
+
+        res.status(201).send("Created")
     } catch (err) {
         res.status(500).send(err.message)
     }
