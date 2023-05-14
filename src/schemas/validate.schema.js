@@ -13,3 +13,9 @@ export const customerObject = joi.object({
     cpf: joi.string().regex(/^\d+$/).length(11).required(),
     birthday: joi.date().required()
   })
+
+export const rentalObject = joi.object({
+    customerId: joi.number().required().min(1),
+    gameId: joi.number().required().min(1),
+    daysRented: joi.number().required().min(1),
+  })

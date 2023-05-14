@@ -67,7 +67,7 @@ export async function updateCustomer(req, res) {
     try {
         const customers = await db.query(`SELECT * FROM customers WHERE cpf = $1;`,[cpf])
 
-        if(customers.rows[0] && customers.rows[0].id != id){
+        if(customers.rows[0] && customers.rows[0].id !== id){
             res.status(409).send("CPF já Cadastrado")
         }
         else{
