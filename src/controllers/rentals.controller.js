@@ -3,10 +3,19 @@ import { db } from "../database/connection.js"
 
 export async function getRentals(req, res) {
     try {
-        const rentals = await db.query(`SELECT * FROM rentals;`)
-        const customer = await db.query(`SELECT * FROM customers WHERE id = $1;`,[rentals.rows[0].customerId])
-        const game = await db.query(`SELECT * FROM games WHERE id = $1;`,[rentals.rows[0].gameId])
+        // const rentals = await db.query(`SELECT * FROM rentals;`)
+        // const customer = await db.query(`SELECT * FROM customers WHERE id = $1;`,[rentals.rows[0].customerId])
+        // const game = await db.query(`SELECT * FROM games WHERE id = $1;`,[rentals.rows[0].gameId])
   
+        const rentals = await db.query(`
+            SELECT rentals.*,
+            games.name AS "gamesName",
+            customers.name AS "customersName"
+            FROM rentals
+            JOIN games ON rentals."gameId" = games.id
+            JOIN customers ON rentals."customerId" = customers.id
+        ;`)
+
         const arr =[]
         
         for(let i=0;i<rentals.rows.length;i++){
@@ -22,11 +31,11 @@ export async function getRentals(req, res) {
 
                 customer: {
                     id: rentals.rows[i].customerId,
-                    name: customer.rows[0].name
+                    name: rentals.rows[i].customersName
                 },
                 game: {
                     id: rentals.rows[i].gameId,
-                    name: game.rows[0].name
+                    name: rentals.rows[i].gamesName
                 }
 
             }
