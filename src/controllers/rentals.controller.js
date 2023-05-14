@@ -21,11 +21,11 @@ export async function getRentals(req, res) {
                 delayFee: rentals.rows[i].delayFee,
 
                 customer: {
-                    id: rentals.rows[0].customerId,
+                    id: rentals.rows[i].customerId,
                     name: customer.rows[0].name
                 },
                 game: {
-                    id: rentals.rows[0].gameId,
+                    id: rentals.rows[i].gameId,
                     name: game.rows[0].name
                 }
 
@@ -45,8 +45,10 @@ export async function postRental(req, res) {
      
         const customer = await db.query(`SELECT * FROM customers WHERE id = $1;`,[customerId])
         const game = await db.query(`SELECT * FROM games WHERE id = $1;`,[gameId])
+        const rentals = await db.query(`SELECT * FROM rentals WHERE "gameId" = $1;`,[gameId])
 
-        if(!customer.rows[0] || !game.rows[0]){
+
+        if(!customer.rows[0] || !game.rows[0] || rentals.rows.length >= game.rows[0].stockTotal){
             return res.sendStatus(400)
         }
 
@@ -84,7 +86,7 @@ export async function returnRental(req, res) {
             return res.sendStatus(400)
         }
         else{            
-            const delayFee =0
+            const delayFee =null
             const rentDate = dayjs(rental.rows[0].rentDate)
             const returnDate = dayjs()
             const dateReturn = rentDate.add(rental.rows[0].daysRented, 'day');
