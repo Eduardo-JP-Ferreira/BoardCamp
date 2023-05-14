@@ -8,6 +8,7 @@ export async function getRentals(req, res) {
         const game = await db.query(`SELECT * FROM games WHERE id = $1;`,[rentals.rows[0].gameId])
   
         const arr =[]
+        
         for(let i=0;i<rentals.rows.length;i++){
             const rentalsObject = {
                 id: rentals.rows[i].id,
@@ -15,7 +16,7 @@ export async function getRentals(req, res) {
                 gameId: rentals.rows[i].gameId,
                 rentDate: dayjs(rentals.rows[i].rentDate).format('YYYY-MM-DD'),
                 daysRented: rentals.rows[i].daysRented,
-                returnDate: dayjs(rentals.rows[i].returnDate).format('YYYY-MM-DD'),
+                returnDate: dayjs(rentals.rows[i].returnDate),
                 originalPrice: rentals.rows[i].originalPrice,
                 delayFee: rentals.rows[i].delayFee,
 
@@ -26,7 +27,7 @@ export async function getRentals(req, res) {
                 game: {
                     id: rentals.rows[0].gameId,
                     name: game.rows[0].name
-                },
+                }
 
             }
             arr.push(rentalsObject)
