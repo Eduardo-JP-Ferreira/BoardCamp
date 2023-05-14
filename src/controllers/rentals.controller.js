@@ -116,9 +116,16 @@ export async function deleteRental(req, res) {
             res.status(404).send("Id não existe")
         }
         else{
-            const deleteRentals = await db.query(`DELETE FROM rentals WHERE id = $1;`, [id])
+
+            if(rental.rows[0].returnDate != null){
+                const deleteRentals = await db.query(`DELETE FROM rentals WHERE id = $1;`, [id])
+                res.sendStatus(200)
+            }
+            else{
+                res.sendStatus(400)
+            }
+
             
-            res.sendStatus(200)
         }
         
     } catch (err) {
