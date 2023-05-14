@@ -4,9 +4,35 @@ import { db } from "../database/connection.js"
 export async function getRentals(req, res) {
     try {
         const rentals = await db.query(`SELECT * FROM rentals;`)
+        const customer = await db.query(`SELECT * FROM customers WHERE id = $1;`,[rentals.rows[0].customerId])
+        const game = await db.query(`SELECT * FROM games WHERE id = $1;`,[rentals.rows[0].gameId])
   
+        const arr =[]
+        for(let i=0;i<rentals.rows.length;i++){
+            const rentalsObject = {
+                id: rentals.rows[i].id,
+                customerId: rentals.rows[i].customerId,
+                gameId: rentals.rows[i].gameId,
+                rentDate: dayjs(rentals.rows[i].rentDate).format('YYYY-MM-DD'),
+                daysRented: rentals.rows[i].daysRented,
+                returnDate: dayjs(rentals.rows[i].returnDate).format('YYYY-MM-DD'),
+                originalPrice: rentals.rows[i].originalPrice,
+                delayFee: rentals.rows[i].delayFee,
+
+                customer: {
+                    id: rentals.rows[0].customerId,
+                    name: customer.rows[0].name
+                },
+                game: {
+                    id: rentals.rows[0].gameId,
+                    name: game.rows[0].name
+                },
+
+            }
+            arr.push(rentalsObject)
+        }
         console.table(rentals.rows)
-        res.send(rentals.rows)
+        res.send(arr)
     } catch (err) {
         res.status(500).send(err.message)
     }
@@ -37,6 +63,44 @@ export async function postRental(req, res) {
         // console.table(customer.rows[0])
         // console.table(game.rows[0])
         res.status(201).send("OK")
+    } catch (err) {
+        res.status(500).send(err.message)
+    }
+}
+
+export async function returnRental(req, res) {
+    const {id} = req.params
+    try {
+     
+        const rental = await db.query(`SELECT * FROM rentals WHERE id = $1;`,[id])
+        
+
+        if(!rental.rows[0]){
+            return res.sendStatus(404)
+        }
+
+        if(rental.rows[0].returnDate != null){
+            return res.sendStatus(400)
+        }
+        else{            
+            const delayFee =0
+            const rentDate = dayjs(rental.rows[0].rentDate)
+            const returnDate = dayjs()
+            const dateReturn = rentDate.add(rental.rows[0].daysRented, 'day');
+            const delayed = returnDate.diff(dateReturn,'day');
+            
+            if(delayed>0){
+                const pricePerDay = rental.rows[0].originalPrice /rental.rows[0].daysRented
+                delayFee = delayed * pricePerDay
+            }
+
+            const updateRental = await db.query(`
+            UPDATE rentals SET "returnDate"=$1, "delayFee"=$2 
+            WHERE id=$3;`, [returnDate.format('YYYY-MM-DD'),delayFee, id])
+            
+            return res.sendStatus(200)
+        }
+
     } catch (err) {
         res.status(500).send(err.message)
     }
